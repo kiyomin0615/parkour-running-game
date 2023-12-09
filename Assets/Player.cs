@@ -4,34 +4,48 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public Rigidbody2D myRigidbody;
+    Rigidbody2D myRigidbody;
+    Animator animator;
 
     [Header("Move Info")]
-    public float moveSpeed;
-    public float jumpForce;
+    [SerializeField] float moveSpeed;
+    [SerializeField] float jumpForce;
 
     [Header("Raycast Info")]
-    public float groundCheckDistance;
-    public LayerMask layerMask;
+    [SerializeField] float groundCheckDistance;
+    [SerializeField] LayerMask layerMask;
 
-    private bool isRunning;
-    private bool isGrounded;
+    bool playerUnlocked;
+    bool isGrounded;
 
     void Start()
     {
-
+        // Rigidbody2D 컴포넌트 참조
+        myRigidbody = GetComponent<Rigidbody2D>();
+        // Animator 컴포넌트 참조
+        animator = GetComponent<Animator>();
     }
 
     void Update()
     {
+        AnimatorController();
+
         CheckCollision();
 
         CheckInput();
 
-        if (isRunning)
+        if (playerUnlocked)
         {
             myRigidbody.velocity = new Vector2(moveSpeed, myRigidbody.velocity.y);
         }
+
+    }
+
+    private void AnimatorController()
+    {
+        animator.SetBool("isGrounded", isGrounded);
+        animator.SetFloat("xVelocity", myRigidbody.velocity.x);
+        animator.SetFloat("yVelocity", myRigidbody.velocity.y);
     }
 
     private void CheckCollision()
@@ -44,7 +58,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire2"))
         {
-            isRunning = true;
+            playerUnlocked = true;
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)

@@ -470,6 +470,7 @@ GameObject:
   - component: {fileID: 1341232790}
   - component: {fileID: 1341232789}
   - component: {fileID: 1341232791}
+  - component: {fileID: 1341232792}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -618,13 +619,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 196fbfef5853d2a4fb014b88e5baf634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myRigidbody: {fileID: 1341232790}
   moveSpeed: 1
   jumpForce: 12
   groundCheckDistance: 1.4
   layerMask:
     serializedVersion: 2
     m_Bits: 8
+--- !u!95 &1341232792
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341232786}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9e102952cc68dde41b8b7b0b24cdc3f0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
