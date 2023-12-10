@@ -11767,6 +11767,7 @@ MonoBehaviour:
   slideCooldownTime: 2
   slideCooldownTimer: 0
   groundCheckDistance: 1.4
+  ceilingCheckDistance: 1.2
   layerMask:
     serializedVersion: 2
     m_Bits: 8

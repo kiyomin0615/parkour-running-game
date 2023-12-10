@@ -22,6 +22,7 @@ public class Player : MonoBehaviour
 
     [Header("Raycast Info")]
     [SerializeField] float groundCheckDistance;
+    [SerializeField] float ceilingCheckDistance;
     [SerializeField] LayerMask layerMask;
 
     [Header("Collision Info")]
@@ -33,6 +34,7 @@ public class Player : MonoBehaviour
     bool canDoubleJump;
     bool wallDeteced;
     bool isSliding;
+    bool ceilingDetected;
 
     void Start()
     {
@@ -55,20 +57,23 @@ public class Player : MonoBehaviour
 
         CheckInput();
 
-        CheckSlideTimer();
+        CheckSlide();
 
         checkSlideCooldownTimer();
 
-        if (playerUnlocked && !wallDeteced)
+        if (playerUnlocked)
         {
             PlayerMove();
         }
     }
 
-
-
     private void PlayerMove()
     {
+        if (wallDeteced)
+        {
+            return;
+        }
+
         if (isSliding)
         {
             myRigidbody.velocity = new Vector2(slideSpeed, myRigidbody.velocity.y);
@@ -79,22 +84,14 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void AnimatorController()
+    private void CheckSlide()
     {
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetBool("isSliding", isSliding);
-        animator.SetBool("canDoubleJump", canDoubleJump);
-        animator.SetFloat("xVelocity", myRigidbody.velocity.x);
-        animator.SetFloat("yVelocity", myRigidbody.velocity.y);
-    }
+        sliderTimer -= Time.deltaTime;
 
-    private void CheckCollision()
-    {
-        // 레이캐스트
-        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, layerMask);
-
-        // 박스캐스트
-        wallDeteced = Physics2D.BoxCast(wallCheck.position, wallCheckSize, 0, Vector2.zero, 0, layerMask);
+        if (sliderTimer < 0 && !ceilingDetected)
+        {
+            isSliding = false;
+        }
     }
 
     private void checkSlideCooldownTimer()
@@ -102,13 +99,31 @@ public class Player : MonoBehaviour
         slideCooldownTimer -= Time.deltaTime;
     }
 
-    private void CheckSlideTimer()
+    private void Slide()
     {
-        sliderTimer -= Time.deltaTime;
-
-        if (sliderTimer < 0)
+        if (myRigidbody.velocity.x > 0 && slideCooldownTimer <= 0)
         {
-            isSliding = false;
+            isSliding = true;
+            sliderTimer = slideTime;
+            slideCooldownTimer = slideCooldownTime;
+        }
+    }
+
+    private void Jump()
+    {
+        if (isSliding)
+        {
+            return;
+        }
+
+        if (isGrounded)
+        {
+            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, singleJumpForce);
+        }
+        else if (canDoubleJump)
+        {
+            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, doubleJumpForce);
+            canDoubleJump = false;
         }
     }
 
@@ -130,34 +145,31 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Slide()
+    private void AnimatorController()
     {
-        if (myRigidbody.velocity.x > 0 && slideCooldownTimer <= 0)
-        {
-            isSliding = true;
-            sliderTimer = slideTime;
-            slideCooldownTimer = slideCooldownTime;
-        }
+        animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("isSliding", isSliding);
+        animator.SetBool("canDoubleJump", canDoubleJump);
+        animator.SetFloat("xVelocity", myRigidbody.velocity.x);
+        animator.SetFloat("yVelocity", myRigidbody.velocity.y);
     }
 
-
-    private void Jump()
+    private void CheckCollision()
     {
-        if (isGrounded)
-        {
-            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, singleJumpForce);
-        }
-        else if (canDoubleJump)
-        {
-            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, doubleJumpForce);
-            canDoubleJump = false;
-        }
+        // 레이캐스트
+        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, layerMask);
+        ceilingDetected = Physics2D.Raycast(transform.position, Vector2.up, ceilingCheckDistance, layerMask);
+
+        // 박스캐스트
+        wallDeteced = Physics2D.BoxCast(wallCheck.position, wallCheckSize, 0, Vector2.zero, 0, layerMask);
     }
 
     private void OnDrawGizmos()
     {
         // 레이캐스트 렌더링
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+        Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y + ceilingCheckDistance));
+
         // 박스캐스트 렌더링
         Gizmos.DrawWireCube(wallCheck.position, wallCheckSize);
     }
