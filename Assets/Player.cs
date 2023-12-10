@@ -29,12 +29,22 @@ public class Player : MonoBehaviour
     [SerializeField] Transform wallCheck;
     [SerializeField] Vector2 wallCheckSize;
 
+    [Header("Ledge Info")]
+    [SerializeField] Vector2 offset1;
+    [SerializeField] Vector2 offset2;
+    Vector2 climbStartPosition;
+    Vector2 climbEndPosition;
+
     bool playerUnlocked;
     bool isGrounded;
     bool canDoubleJump;
     bool wallDeteced;
     bool isSliding;
     bool ceilingDetected;
+    bool canGrabLedge = true;
+    bool isClimbing;
+
+    [HideInInspector] public bool ledgeDetected;
 
     void Start()
     {
@@ -59,6 +69,8 @@ public class Player : MonoBehaviour
 
         CheckSlide();
 
+        CheckLedge();
+
         checkSlideCooldownTimer();
 
         if (playerUnlocked)
@@ -82,6 +94,40 @@ public class Player : MonoBehaviour
         {
             myRigidbody.velocity = new Vector2(moveSpeed, myRigidbody.velocity.y);
         }
+    }
+
+    private void CheckLedge()
+    {
+        if (ledgeDetected && canGrabLedge)
+        {
+            canGrabLedge = false;
+
+            Vector2 ledgePosition = GetComponentInChildren<LedgeDetection>().transform.position;
+
+            climbStartPosition = ledgePosition + offset1;
+            climbEndPosition = ledgePosition + offset2;
+
+            isClimbing = true;
+        }
+
+        if (isClimbing)
+        {
+            transform.position = climbStartPosition;
+        }
+    }
+
+    // Animation Clip에서 이벤트 핸들러로 등록
+    private void ClimbOver()
+    {
+        isClimbing = false;
+        transform.position = climbEndPosition;
+        Invoke("ResetGrabState", 0.5f);
+
+    }
+
+    private void ResetGrabState()
+    {
+        canGrabLedge = true;
     }
 
     private void CheckSlide()
@@ -150,6 +196,7 @@ public class Player : MonoBehaviour
         animator.SetBool("isGrounded", isGrounded);
         animator.SetBool("isSliding", isSliding);
         animator.SetBool("canDoubleJump", canDoubleJump);
+        animator.SetBool("isClimbing", isClimbing);
         animator.SetFloat("xVelocity", myRigidbody.velocity.x);
         animator.SetFloat("yVelocity", myRigidbody.velocity.y);
     }
