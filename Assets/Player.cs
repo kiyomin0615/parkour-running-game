@@ -16,9 +16,14 @@ public class Player : MonoBehaviour
     [SerializeField] float groundCheckDistance;
     [SerializeField] LayerMask layerMask;
 
+    [Header("Collision Info")]
+    [SerializeField] Transform wallCheck;
+    [SerializeField] Vector2 wallCheckSize;
+
     bool playerUnlocked;
     bool isGrounded;
     bool canDoubleJump;
+    bool wallDeteced;
 
     void Start()
     {
@@ -30,17 +35,27 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (isGrounded)
+        {
+            canDoubleJump = true;
+        }
+
         AnimatorController();
 
         CheckCollision();
 
         CheckInput();
 
-        if (playerUnlocked)
+        if (playerUnlocked && !wallDeteced)
         {
-            myRigidbody.velocity = new Vector2(moveSpeed, myRigidbody.velocity.y);
+            PlayerMove();
         }
 
+    }
+
+    private void PlayerMove()
+    {
+        myRigidbody.velocity = new Vector2(moveSpeed, myRigidbody.velocity.y);
     }
 
     private void AnimatorController()
@@ -55,6 +70,9 @@ public class Player : MonoBehaviour
     {
         // 레이캐스트
         isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, layerMask);
+
+        // 박스캐스트
+        wallDeteced = Physics2D.BoxCast(wallCheck.position, wallCheckSize, 0, Vector2.zero, 0, layerMask);
     }
 
     private void CheckInput()
@@ -75,7 +93,6 @@ public class Player : MonoBehaviour
         if (isGrounded)
         {
             myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, singleJumpForce);
-            canDoubleJump = true;
         }
         else if (canDoubleJump)
         {
@@ -88,5 +105,7 @@ public class Player : MonoBehaviour
     {
         // 레이캐스트 렌더링
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+        // 박스캐스트 렌더링
+        Gizmos.DrawWireCube(wallCheck.position, wallCheckSize);
     }
 }
