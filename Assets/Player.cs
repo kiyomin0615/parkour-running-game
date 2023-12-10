@@ -12,6 +12,15 @@ public class Player : MonoBehaviour
     [SerializeField] float moveSpeed;
     [SerializeField] float singleJumpForce;
     [SerializeField] float doubleJumpForce;
+    float defaultSpeed;
+
+    [Header("Speed Info")]
+    [SerializeField] float maxSpeed;
+    [SerializeField] float speedMultiplier;
+    [Space]
+    [SerializeField] float milestoneIncrement;
+    [SerializeField] float milestone;
+    float defaultMilestoneIncrement;
 
     [Header("Slide Info")]
     [SerializeField] float slideSpeed;
@@ -52,6 +61,10 @@ public class Player : MonoBehaviour
         myRigidbody = GetComponent<Rigidbody2D>();
         // Animator 컴포넌트 참조
         animator = GetComponent<Animator>();
+
+        defaultSpeed = moveSpeed;
+        defaultMilestoneIncrement = milestoneIncrement;
+        milestone = milestoneIncrement;
     }
 
     void Update()
@@ -62,6 +75,8 @@ public class Player : MonoBehaviour
         }
 
         AnimatorController();
+
+        SpeedContoller();
 
         CheckCollision();
 
@@ -79,10 +94,37 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void ResetSpeed()
+    {
+        moveSpeed = defaultSpeed;
+        milestoneIncrement = defaultMilestoneIncrement;
+    }
+
+    private void SpeedContoller()
+    {
+        if (moveSpeed == maxSpeed)
+        {
+            return;
+        }
+
+        if (transform.position.x > milestone)
+        {
+            moveSpeed *= speedMultiplier;
+            milestoneIncrement *= speedMultiplier;
+            milestone += milestoneIncrement;
+
+            if (moveSpeed > maxSpeed)
+            {
+                moveSpeed = maxSpeed;
+            }
+        }
+    }
+
     private void PlayerMove()
     {
         if (wallDeteced)
         {
+            ResetSpeed();
             return;
         }
 

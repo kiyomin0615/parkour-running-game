@@ -11857,6 +11857,10 @@ MonoBehaviour:
   moveSpeed: 12
   singleJumpForce: 18
   doubleJumpForce: 15
+  maxSpeed: 100
+  speedMultiplier: 1.15
+  milestoneIncrement: 50
+  milestone: 0
   slideSpeed: 12
   slideTime: 0.4
   sliderTimer: 0
