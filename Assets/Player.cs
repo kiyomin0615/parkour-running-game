@@ -9,7 +9,8 @@ public class Player : MonoBehaviour
 
     [Header("Move Info")]
     [SerializeField] float moveSpeed;
-    [SerializeField] float jumpForce;
+    [SerializeField] float singleJumpForce;
+    [SerializeField] float doubleJumpForce;
 
     [Header("Raycast Info")]
     [SerializeField] float groundCheckDistance;
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
 
     bool playerUnlocked;
     bool isGrounded;
+    bool canDoubleJump;
 
     void Start()
     {
@@ -44,6 +46,7 @@ public class Player : MonoBehaviour
     private void AnimatorController()
     {
         animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("canDoubleJump", canDoubleJump);
         animator.SetFloat("xVelocity", myRigidbody.velocity.x);
         animator.SetFloat("yVelocity", myRigidbody.velocity.y);
     }
@@ -61,9 +64,23 @@ public class Player : MonoBehaviour
             playerUnlocked = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, jumpForce);
+            Jump();
+        }
+    }
+
+    private void Jump()
+    {
+        if (isGrounded)
+        {
+            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, singleJumpForce);
+            canDoubleJump = true;
+        }
+        else if (canDoubleJump)
+        {
+            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, doubleJumpForce);
+            canDoubleJump = false;
         }
     }
 

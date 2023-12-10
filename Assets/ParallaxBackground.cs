@@ -12,7 +12,6 @@ public class ParallaxBackground : MonoBehaviour
     float length;
     float xPos;
 
-
     void Start()
     {
         // GameObject.Find 메소드를 절대 Update 안에서 호출하지 마라
