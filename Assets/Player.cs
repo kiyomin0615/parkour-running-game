@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,13 @@ public class Player : MonoBehaviour
     [SerializeField] float singleJumpForce;
     [SerializeField] float doubleJumpForce;
 
+    [Header("Slide Info")]
+    [SerializeField] float slideSpeed;
+    [SerializeField] float slideTime;
+    [SerializeField] float sliderTimer;
+    [SerializeField] float slideCooldownTime;
+    [SerializeField] float slideCooldownTimer;
+
     [Header("Raycast Info")]
     [SerializeField] float groundCheckDistance;
     [SerializeField] LayerMask layerMask;
@@ -24,6 +32,7 @@ public class Player : MonoBehaviour
     bool isGrounded;
     bool canDoubleJump;
     bool wallDeteced;
+    bool isSliding;
 
     void Start()
     {
@@ -46,21 +55,34 @@ public class Player : MonoBehaviour
 
         CheckInput();
 
+        CheckSlideTimer();
+
+        checkSlideCooldownTimer();
+
         if (playerUnlocked && !wallDeteced)
         {
             PlayerMove();
         }
-
     }
+
+
 
     private void PlayerMove()
     {
-        myRigidbody.velocity = new Vector2(moveSpeed, myRigidbody.velocity.y);
+        if (isSliding)
+        {
+            myRigidbody.velocity = new Vector2(slideSpeed, myRigidbody.velocity.y);
+        }
+        else
+        {
+            myRigidbody.velocity = new Vector2(moveSpeed, myRigidbody.velocity.y);
+        }
     }
 
     private void AnimatorController()
     {
         animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("isSliding", isSliding);
         animator.SetBool("canDoubleJump", canDoubleJump);
         animator.SetFloat("xVelocity", myRigidbody.velocity.x);
         animator.SetFloat("yVelocity", myRigidbody.velocity.y);
@@ -75,6 +97,21 @@ public class Player : MonoBehaviour
         wallDeteced = Physics2D.BoxCast(wallCheck.position, wallCheckSize, 0, Vector2.zero, 0, layerMask);
     }
 
+    private void checkSlideCooldownTimer()
+    {
+        slideCooldownTimer -= Time.deltaTime;
+    }
+
+    private void CheckSlideTimer()
+    {
+        sliderTimer -= Time.deltaTime;
+
+        if (sliderTimer < 0)
+        {
+            isSliding = false;
+        }
+    }
+
     private void CheckInput()
     {
         if (Input.GetButtonDown("Fire2"))
@@ -86,7 +123,23 @@ public class Player : MonoBehaviour
         {
             Jump();
         }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            Slide();
+        }
     }
+
+    private void Slide()
+    {
+        if (myRigidbody.velocity.x > 0 && slideCooldownTimer <= 0)
+        {
+            isSliding = true;
+            sliderTimer = slideTime;
+            slideCooldownTimer = slideCooldownTime;
+        }
+    }
+
 
     private void Jump()
     {

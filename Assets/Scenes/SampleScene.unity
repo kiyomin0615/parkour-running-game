@@ -11761,6 +11761,11 @@ MonoBehaviour:
   moveSpeed: 12
   singleJumpForce: 18
   doubleJumpForce: 15
+  slideSpeed: 12
+  slideTime: 0.4
+  sliderTimer: 0
+  slideCooldownTime: 2
+  slideCooldownTimer: 0
   groundCheckDistance: 1.4
   layerMask:
     serializedVersion: 2
