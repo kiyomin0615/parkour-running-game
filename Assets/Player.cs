@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     [SerializeField] float speedMultiplier;
     [Space]
     [SerializeField] float milestoneIncrement;
-    [SerializeField] float milestone;
+    float milestone;
     float defaultMilestoneIncrement;
 
     [Header("Slide Info")]
@@ -27,7 +27,7 @@ public class Player : MonoBehaviour
     [SerializeField] float slideTime;
     [SerializeField] float sliderTimer;
     [SerializeField] float slideCooldownTime;
-    [SerializeField] float slideCooldownTimer;
+    float slideCooldownTimer;
 
     [Header("Raycast Info")]
     [SerializeField] float groundCheckDistance;
@@ -154,14 +154,17 @@ public class Player : MonoBehaviour
 
         if (isClimbing)
         {
+            myRigidbody.gravityScale = 0;
             transform.position = climbStartPosition;
         }
     }
 
     // Animation Clip에서 이벤트 핸들러로 등록
-    private void ClimbOver()
+    private void OnClimbExit()
     {
         isClimbing = false;
+        myRigidbody.gravityScale = 5;
+        myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, 0);
         transform.position = climbEndPosition;
         Invoke("ResetGrabState", 0.5f);
 
@@ -241,6 +244,17 @@ public class Player : MonoBehaviour
         animator.SetBool("isClimbing", isClimbing);
         animator.SetFloat("xVelocity", myRigidbody.velocity.x);
         animator.SetFloat("yVelocity", myRigidbody.velocity.y);
+
+        if (myRigidbody.velocity.y < -20.0f)
+        {
+            animator.SetBool("isRolling", true);
+        }
+    }
+
+    // Animation Clip에서 이벤트 핸들러로 등록
+    private void OnRollExit()
+    {
+        animator.SetBool("isRolling", false);
     }
 
     private void CheckCollision()
